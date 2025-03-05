@@ -1,0 +1,56 @@
+import React, { useEffect } from 'react';
+import { Cart, Filter, Home, Navbar, Wishlist ,Login,Register } from './components';
+import { Route, Routes } from 'react-router-dom';
+import {
+	setError,
+	setIsLoading,
+	setWishlist,
+	setProducts,
+} from './lib/slices/productsSlice';
+import productsService from './service/products';
+import { useDispatch, useSelector } from 'react-redux';
+import { getFromLocal, setToLocal } from './lib/ls';
+const App = () => {
+	const { wishlist } = useSelector(state => state.products);
+	const dispatch = useDispatch();
+
+	useEffect(() => {
+		const getProducts = async () => {
+			dispatch(setIsLoading(true));
+			try {
+				const { data } = await productsService.getAll();
+				dispatch(setProducts(data));
+				dispatch(setError(null));
+			} catch (error) {
+				dispatch(setError(error));
+			} finally {
+				dispatch(setIsLoading(false));
+			}
+		};
+		getProducts();
+
+		const wishlists = getFromLocal('wishlist');
+		if (wishlists) {
+			dispatch(setWishlist(wishlists));
+		}
+	}, []);
+
+	useEffect(() => {
+		setToLocal('wishlist', wishlist);
+	}, [wishlist]);
+	return (
+    <div>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/filter/:q" element={<Filter />} />
+        <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </div>
+  );
+};
+
+export default App;
