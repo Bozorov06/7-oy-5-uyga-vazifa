@@ -10,8 +10,9 @@ const Login = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    dispatch(login(credentials));
+   if (dispatch(login (credentials))) {
     navigate("/");
+   }
   };
 
   return (
@@ -53,3 +54,5 @@ const Login = () => {
 };
 
 export default Login;
+
+
